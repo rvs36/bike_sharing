@@ -2,3 +2,5 @@
 weather_data/log_year.txt
 
 data/
+
+.ipynb_checkpoints/
