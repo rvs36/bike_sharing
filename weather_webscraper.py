@@ -4,25 +4,24 @@ from bs4 import BeautifulSoup
 import datetime
 from datetime import date, timedelta
 import sys
-out_dir = './weather_data/'
+out_dir = './data/'
 
 def daterange(date1, date2):
     for n in range(int ((date2 - date1).days)+1):
         yield date1 + timedelta(n)
 
-url_base = 'https://www.weatherforyou.com/reports/index.php?forecast=pass&pass=archive&zipcode=22747&pands=&place=washington&state=va&icao=KDCA&country=us&month=%s&day=%s&year=2018&dosubmit=Go'
-with open(out_dir + 'log_year.txt', 'w+') as f:
-	f.write('LOGFILE: Scraping data for year: \n')
-	f.write(url_base)
+url_base = 'https://www.weatherforyou.com/reports/index.php?forecast=pass&pass=archivenws&zipcode=22747&pands=&place=washington&state=va&icao=KDCA&country=us&month=%s&day=%s&year=2018&dosubmit=Go'
+
+#'https://www.weatherforyou.com/reports/index.php?forecast=pass&pass=archive&zipcode=22747&pands=&place=washington&state=va&icao=KDCA&country=us&month=%s&day=%s&year=2018&dosubmit=Go'
 
 # dates generation
 start_dt = date(2018, 1, 1)
 end_dt = date(2018,12,31)
 dates = [dt.strftime('%Y-%m-%d') for dt in daterange(start_dt, end_dt)]
 	
-col_names = ['date', 'time', 'weather_description', 'temp_in_f', 'dewpt_in_f', 'humidity_in_%', 'pressure', 'precipitation_in_inches', 'wind_direction', 'wind_speed_in_mph']		
+col_names = ['date', 'time', 'weather_description', 'temp_in_f', 'dewpt_in_f', 'humidity_in_%', 'pressure', 'precipitation_in_inches', 'visibility_in_miles', 'wind_direction', 'wind_speed_in_mph']		
 final_df = pd.DataFrame(columns = col_names)
-
+#dates = ['2018-04-28']
 for i, date in enumerate(dates):
 	month = date.split('-')[1]
 	day = date.split('-')[2]
@@ -31,8 +30,6 @@ for i, date in enumerate(dates):
 	r = requests.get(url_base % (month, day)) # check the format 
 	print(url_base % (month,day))
 
-	with open(out_dir + 'log_year.txt', 'w') as file:
-		file.write('Date: {} || Status: {}\n'.format(date, r.status_code))
 
 	if r.status_code == 200 : # everything is ok 
 		# get the data from beautiful soup 
@@ -89,5 +86,6 @@ for i, date in enumerate(dates):
 		print(final_df.tail())
 
 # write out 
-final_df.to_csv (out_dir + 'weather_data.csv', index = None, header=True) 
+
+final_df.to_csv(out_dir + 'weather_data3.csv', index = None, header=True) 
 print('SUCCESS')
