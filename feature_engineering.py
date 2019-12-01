@@ -72,3 +72,36 @@ def wind_direction(df):
     df = df.join(one_hot_2)
     return df
 
+#  Create 4 buckets for time and 2 for day
+def hour_flag(df):
+    if (5 <= df['start_hour'] < 10):
+        return 'morning_peak'
+    elif(10 <= df['start_hour'] < 15):
+        return 'day_time'
+    elif(15 <= df['start_hour'] < 21):
+        return 'Evening_peak'
+    else:
+        return 'night_time'
+    
+def hour_features(df):
+    df['hour_flag'] = df.apply(hour_flag, axis = 1)
+
+    # do one hot encoding 
+    one_hot = pd.get_dummies(df['hour_flag'])
+    df = df.join(one_hot)
+
+    df = df.drop(['hour_flag', 'hour'], axis = 1)
+    return df 
+
+def day_flag(df):
+    if (df['weekday'] <= 5):
+        return 0
+    else:
+        return 1
+    
+def day_features(df):
+    df['weekday_flag'] = df.apply(day_flag, axis = 1)
+
+    df = df.drop(['weekday'], axis=1)
+    return df 
+    
