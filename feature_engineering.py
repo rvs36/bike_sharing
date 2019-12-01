@@ -44,6 +44,14 @@ def date_feature(df):
     df['weekday'] = df['start_date'].apply(lambda x:x.weekday())
     df = df.drop(['start_date'], axis = 1)
     return df
+def top_i_station_onehot(df, i)
+    a = df.groupby('start_station')['total_in'].sum().sort_values(ascending=False)
+    top = i
+    top_stations = a.index.tolist()[:top]
+    df['station_popularity'] = df['start_station'].apply(lambda x: 'other' if x not in top_stations else x)
+    one_hot = pd.get_dummies(df['station_popularity'])
+    df = df.join(one_hot)
+    return df
 
 def member_type(df):
     one_hot = pd.get_dummies(df['member_type'])
