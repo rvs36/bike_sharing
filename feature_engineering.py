@@ -49,4 +49,11 @@ def member_type(df):
     one_hot = pd.get_dummies(df['member_type'])
     df = df.join(one_hot)
     df = df.drop(['member_type'], axis = 1)
-    return df 
+    return df
+
+def weather(df):
+    one_hot_2 = pd.get_dummies(df['weather_description'])
+    df = df.drop('weather_description', axis = 1)
+    df = df.join(one_hot_2)
+    return df
+
