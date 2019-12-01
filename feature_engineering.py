@@ -3,35 +3,32 @@ import numpy as np
 from dateutil import parser 
 import bisect 
 import re 
-import seaborn as sns
 from datetime import datetime
-import matplotlib.pyplot as plt
 from sklearn import metrics
+
 pd.options.mode.chained_assignment = None  # default='warn'
 
-def season(df):
-	spring = ['03','04','05']
-	summer = ['06','07','08']
-	autumn = ['09','10','11']
-	winter = ['12','01','02']
+def func(x): 
+    if x in spring:
+        return "spring"
+    elif x in summer:
+        return "summer"
+    elif x in autumn:
+        return "autumn"
+    return 'winter'
 
-	df['month'] = df['start_date'].apply(lambda x: x[-5:-3])
+def season(df) :
+    spring = ['03','04','05']
+    summer = ['06','07','08']
+    autumn = ['09','10','11']
+    winter = ['12','01','02']
 
-	def func(x):
-    	if x in spring:
-        	return "spring"
-    	elif x in summer:
-        	return "summer"
-    	elif x in autumn:
-        	return "autumn"
-    	else:
-        	return 'winter'
-
+    df['month'] = df['start_date'].apply(lambda x: x[-5:-3])
     df['season'] = df['month'].apply(func)
-
     one_hot = pd.get_dummies(df['season'])
     df = df.join(one_hot)
     df = df.drop('season', axis = 1)
+
     return df
 
 def holiday(df):
