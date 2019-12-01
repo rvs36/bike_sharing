@@ -90,7 +90,7 @@ def hour_features(df):
     one_hot = pd.get_dummies(df['hour_flag'])
     df = df.join(one_hot)
 
-    df = df.drop(['hour_flag', 'hour'], axis = 1)
+    df = df.drop(['hour_flag', 'start_hour'], axis = 1)
     return df 
 
 def day_flag(df):
