@@ -37,3 +37,11 @@ def holiday(df):
 	df['holiday'] = df['start_date'].apply(lambda x : 1 if x[5:10] in holidays else 0)
 	return df
 
+def date_feature(df):
+    df['start_date'] = pd.to_datetime(df['start_date'])
+    df['month'] = df['start_date'].apply(lambda x: str(x.month))
+    df['day'] = test_df['start_date'].apply(lambda x: str(x.day))
+    df['weekday'] = test_df['start_date'].apply(lambda x:x.weekday())
+    df = df.drop(['start_date'], axis = 1)
+    return df
+
