@@ -57,3 +57,9 @@ def weather(df):
     df = df.join(one_hot_2)
     return df
 
+def wind_direction(df):
+    one_hot_2 = pd.get_dummies(df['wind_direction'])
+    df = df.drop('wind_direction', axis = 1)
+    df = df.join(one_hot_2)
+    return df
+
