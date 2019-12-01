@@ -9,6 +9,11 @@ from sklearn import metrics
 pd.options.mode.chained_assignment = None  # default='warn'
 
 def func(x): 
+    spring = ['03','04','05']
+    summer = ['06','07','08']
+    autumn = ['09','10','11']
+    winter = ['12','01','02']
+
     if x in spring:
         return "spring"
     elif x in summer:
@@ -18,11 +23,6 @@ def func(x):
     return 'winter'
 
 def season(df) :
-    spring = ['03','04','05']
-    summer = ['06','07','08']
-    autumn = ['09','10','11']
-    winter = ['12','01','02']
-
     df['month'] = df['start_date'].apply(lambda x: x[-5:-3])
     df['season'] = df['month'].apply(func)
     one_hot = pd.get_dummies(df['season'])
@@ -40,8 +40,13 @@ def holiday(df):
 def date_feature(df):
     df['start_date'] = pd.to_datetime(df['start_date'])
     df['month'] = df['start_date'].apply(lambda x: str(x.month))
-    df['day'] = test_df['start_date'].apply(lambda x: str(x.day))
-    df['weekday'] = test_df['start_date'].apply(lambda x:x.weekday())
+    df['day'] = df['start_date'].apply(lambda x: str(x.day))
+    df['weekday'] = df['start_date'].apply(lambda x:x.weekday())
     df = df.drop(['start_date'], axis = 1)
     return df
 
+def member_type(df):
+    one_hot = pd.get_dummies(df['member_type'])
+    df = df.join(one_hot)
+    df = df.drop(['member_type'], axis = 1)
+    return df 
