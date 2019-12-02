@@ -45,10 +45,11 @@ def date_feature(df):
     df = df.drop(['date'], axis = 1)
     return df
 
-def top_i_station_onehot(df, in_or_out = 'total_out', top = 20):
+def top_i_station_onehot(df, in_or_out = 'sum_ins_outs', top = 20):
     df['sum_ins_outs'] = df['total_out'] + df['total_in']
-    a = df.groupby('station')['sum_ins_outs'].sum().sort_values(ascending=False)
-    top_stations = a.index.tolist()[:top]
+    a =  train_df.groupby(['station'], as_index = False)[in_or_out].agg('sum').sort_values(by = in_or_out, 
+                                                                                            ascending=False).reset_index()
+    top_stations = a.station[:top]
     df['station_popularity'] = df['station'].apply(lambda x: 'other' if x not in top_stations else x)
     one_hot = pd.get_dummies(df['station_popularity'])
     df = df.drop(['station_popularity'], axis = 1)
