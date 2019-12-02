@@ -23,7 +23,7 @@ def func(x):
     return 'winter'
 
 def season(df) :
-    df['month'] = df['start_date'].apply(lambda x: x[-5:-3])
+    df['month'] = df['date'].apply(lambda x: x[-5:-3])
     df['season'] = df['month'].apply(func)
     one_hot = pd.get_dummies(df['season'])
     df = df.join(one_hot)
@@ -34,24 +34,26 @@ def season(df) :
 def holiday(df):
 	holidays = ['01-01','01-15','02-19','05-28','07-04','09-03','11-11','11-12','11-22','11-23','12-25']
 
-	df['holiday'] = df['start_date'].apply(lambda x : 1 if x[5:10] in holidays else 0)
+	df['holiday'] = df['date'].apply(lambda x : 1 if x[5:10] in holidays else 0)
 	return df
 
 def date_feature(df):
-    df['start_date'] = pd.to_datetime(df['start_date'])
-    df['month'] = df['start_date'].apply(lambda x: str(x.month))
-    df['day'] = df['start_date'].apply(lambda x: str(x.day))
-    df['weekday'] = df['start_date'].apply(lambda x:x.weekday())
-    df = df.drop(['start_date'], axis = 1)
+    df['date'] = pd.to_datetime(df['date'])
+    df['month'] = df['date'].apply(lambda x: str(x.month))
+    df['day'] = df['date'].apply(lambda x: str(x.day))
+    df['weekday'] = df['date'].apply(lambda x:x.weekday())
+    df = df.drop(['date'], axis = 1)
     return df
 
-def top_i_station_onehot(df, top = 20):
-    a = df.groupby('station')['in_count'].sum().sort_values(ascending=False)
+def top_i_station_onehot(df, in_or_out = 'total_out', top = 20):
+    df['sum_ins_outs'] = df['total_out'] + df['total_in']
+    a = df.groupby('station')['sum_ins_outs'].sum().sort_values(ascending=False)
     top_stations = a.index.tolist()[:top]
     df['station_popularity'] = df['station'].apply(lambda x: 'other' if x not in top_stations else x)
     one_hot = pd.get_dummies(df['station_popularity'])
     df = df.drop(['station_popularity'], axis = 1)
     df = df.join(one_hot)
+    
     return df
 
 def member_type(df):
@@ -61,36 +63,48 @@ def member_type(df):
     return df
 
 def weather(df):
-    one_hot_2 = pd.get_dummies(df['weather_description'])
+    df['weather_description'] = df['weather_description'].apply(lambda x: x.lower())
+    df['thunderstorm'] = df['weather_description'].apply(lambda x: 1 if 'storm' in x else 0)
+    df['cloudy'] = df['weather_description'].apply(lambda x: 1 if 'cloudy' in x else 0)
+    df['drizzle'] = df['weather_description'].apply(lambda x: 1 if 'drizzle' in x else 0)
+    df['fog'] = df['weather_description'].apply(lambda x: 1 if 'fog' in x else 0)
+    df['haze'] = df['weather_description'].apply(lambda x: 1 if 'haz' in x else 0)
+    df['rain'] = df['weather_description'].apply(lambda x: 1 if 'rain' in x else 0)
+    df['snow'] = df['weather_description'].apply(lambda x: 1 if 'snow' in x or 'wintry' in x else 0)
+    df['clear'] = df['weather_description'].apply(lambda x: 1 if 'clear' in x  else 0)
+
     df = df.drop('weather_description', axis = 1)
-    df = df.join(one_hot_2)
     return df
 
 def wind_direction(df):
-    one_hot_2 = pd.get_dummies(df['wind_direction'])
+    df['N'] = df['wind_direction'].apply(lambda x: 1 if 'N' in x else 0)
+    df['E'] = df['wind_direction'].apply(lambda x: 1 if 'E' in x else 0)
+    df['W'] = df['wind_direction'].apply(lambda x: 1 if 'W' in x else 0)
+    df['S'] = df['wind_direction'].apply(lambda x: 1 if 'S' in x else 0)
+
     df = df.drop('wind_direction', axis = 1)
-    df = df.join(one_hot_2)
     return df
 
 #  Create 4 buckets for time and 2 for day
 def hour_flag(df):
-    if (5 <= df['start_hour'] < 10):
+    if (5 <= df['hour'] < 10):
         return 'morning_peak'
-    elif(10 <= df['start_hour'] < 15):
+    elif(10 <= df['hour'] < 15):
         return 'day_time'
-    elif(15 <= df['start_hour'] < 21):
-        return 'Evening_peak'
+    elif(15 <= df['hour'] < 21):
+        return 'evening_peak'
     else:
         return 'night_time'
     
 def hour_features(df):
+    df['hour'] = df['time'].apply(lambda x: int(x.split(':')[0]))
     df['hour_flag'] = df.apply(hour_flag, axis = 1)
 
     # do one hot encoding 
     one_hot = pd.get_dummies(df['hour_flag'])
     df = df.join(one_hot)
 
-    df = df.drop(['hour_flag', 'start_hour'], axis = 1)
+    df = df.drop(['hour_flag', 'hour'], axis = 1)
     return df 
 
 def day_flag(df):
@@ -105,3 +119,18 @@ def day_features(df):
     df = df.drop(['weekday'], axis=1)
     return df 
     
+
+def humidity_feature(df):
+    df['very_humid'] = df['humidity_in_%'].apply(lambda x: 1 if x >= 75 else 0)
+    df['humid'] = df['humidity_in_%'].apply(lambda x: 1 if  75 > x >= 50 else 0) 
+    df['not_humid'] = df['humidity_in_%'].apply(lambda x: 1 if 50 > x >= 15 else 0)
+    df['not_humid'] = df['humidity_in_%'].apply(lambda x: 1 if 15 > x  else 0)
+
+    df = df.drop(['humidity_in_%'], axis=1)
+    return df 
+
+def visibility_feature(df):
+    df['visible'] = df['visibility_in_miles'].apply(lambda x : 1 if x == 10 else 0)
+
+    df = df.drop(['visibility_in_miles'], axis=1)
+    return df 
