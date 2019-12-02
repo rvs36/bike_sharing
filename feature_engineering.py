@@ -118,6 +118,18 @@ def day_features(df):
 
     df = df.drop(['weekday'], axis=1)
     return df 
+
+def wind_chill(df):
+	df['wind_chill'] = 35.74 + (0.6215*df.temp_in_f) - 35.75*(df.wind_speed_in_mph**0.16) + ((0.4275*df.temp_in_f)*(df.wind_speed_in_mph**0.16))
+	df.loc[(df.wind_speed_in_mph < 3) | (df.temp_in_f > 50), ['wind_chill']] = df.temp_in_f
+
+def heatindex(vTemperature, vRelativeHumidity):
+    heatindex = -42.379 + 2.04901523*vTemperature + 10.14333127*vRelativeHumidity - .22475541*vTemperature*vRelativeHumidity - .00683783*vTemperature*vTemperature - .05481717*vRelativeHumidity*vRelativeHumidity + .00122874*vTemperature*vTemperature*vRelativeHumidity + .00085282*vTemperature*vRelativeHumidity*vRelativeHumidity - .00000199*vTemperature*vTemperature*vRelativeHumidity*vRelativeHumidity
+    return heatindex
+
+def heat_index(df):
+	df['heat_index'] = heatindex(df.temp_in_f, df['humidity_in_%'])
+	df.loc[(df['humidity_in_%'] <40 ) | (df.temp_in_f < 80), ['heat_index']] = df.temp_in_f
     
 
 def humidity_feature(df):
