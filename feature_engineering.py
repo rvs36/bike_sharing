@@ -47,10 +47,10 @@ def date_feature(df):
 
 def top_i_station_onehot(df, in_or_out = 'sum_ins_outs', top = 20):
     df['sum_ins_outs'] = df['total_out'] + df['total_in']
-    a =  train_df.groupby(['station'], as_index = False)[in_or_out].agg('sum').sort_values(by = in_or_out, 
-                                                                                            ascending=False).reset_index()
-    top_stations = a.station[:top]
+    a =  df.groupby(['station'], as_index = False)[in_or_out].agg('sum').sort_values(by = in_or_out, ascending=False).reset_index()
+    top_stations = a.station[:top].tolist()
     df['station_popularity'] = df['station'].apply(lambda x: 'other' if x not in top_stations else x)
+    
     one_hot = pd.get_dummies(df['station_popularity'])
     df = df.drop(['station_popularity'], axis = 1)
     df = df.join(one_hot)
@@ -121,16 +121,19 @@ def day_features(df):
     return df 
 
 def wind_chill(df):
-	df['wind_chill'] = 35.74 + (0.6215*df.temp_in_f) - 35.75*(df.wind_speed_in_mph**0.16) + ((0.4275*df.temp_in_f)*(df.wind_speed_in_mph**0.16))
-	df.loc[(df.wind_speed_in_mph < 3) | (df.temp_in_f > 50), ['wind_chill']] = df.temp_in_f
+    df['wind_chill'] = 35.74 + (0.6215*df.temp_in_f) - 35.75*(df.wind_speed_in_mph**0.16) + ((0.4275*df.temp_in_f)*(df.wind_speed_in_mph**0.16))
+    df.loc[(df.wind_speed_in_mph < 3) | (df.temp_in_f > 50), ['wind_chill']] = df.temp_in_f
+    return df 
+
 
 def heatindex(vTemperature, vRelativeHumidity):
     heatindex = -42.379 + 2.04901523*vTemperature + 10.14333127*vRelativeHumidity - .22475541*vTemperature*vRelativeHumidity - .00683783*vTemperature*vTemperature - .05481717*vRelativeHumidity*vRelativeHumidity + .00122874*vTemperature*vTemperature*vRelativeHumidity + .00085282*vTemperature*vRelativeHumidity*vRelativeHumidity - .00000199*vTemperature*vTemperature*vRelativeHumidity*vRelativeHumidity
     return heatindex
 
 def heat_index(df):
-	df['heat_index'] = heatindex(df.temp_in_f, df['humidity_in_%'])
-	df.loc[(df['humidity_in_%'] <40 ) | (df.temp_in_f < 80), ['heat_index']] = df.temp_in_f
+    df['heat_index'] = heatindex(df.temp_in_f, df['humidity_in_%'])
+    df.loc[(df['humidity_in_%'] <40 ) | (df.temp_in_f < 80), ['heat_index']] = df.temp_in_f
+    return df
     
 
 def humidity_feature(df):
