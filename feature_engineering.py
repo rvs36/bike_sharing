@@ -150,3 +150,21 @@ def visibility_feature(df):
 
     df = df.drop(['visibility_in_miles'], axis=1)
     return df 
+
+def member_one_hot(df):
+    one_hot = pd.get_dummies(df['member_type'])
+    df = df.join(one_hot)
+    df = df.drop(['member_type'], axis=1)
+    return df
+
+def weather_one_hot(df):
+    one_hot = pd.get_dummies(df['weather_description'])
+    df = df.join(one_hot)
+    df = df.drop(['weather_description'], axis=1)
+    return df
+
+def wind_direction_one_hot(df):
+    one_hot = pd.get_dummies(df['wind_direction'])
+    df = df.join(one_hot)
+    df = df.drop(['wind_direction'], axis=1)
+    return df
