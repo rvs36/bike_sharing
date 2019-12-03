@@ -133,7 +133,7 @@ def heatindex(vTemperature, vRelativeHumidity):
 def heat_index(df):
     df['heat_index'] = heatindex(df.temp_in_f, df['humidity_in_%'])
     df.loc[(df['humidity_in_%'] <40 ) | (df.temp_in_f < 80), ['heat_index']] = df.temp_in_f
-    return df
+    return df  
     
 
 def humidity_feature(df):
